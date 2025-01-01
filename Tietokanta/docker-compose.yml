@@ -1,0 +1,25 @@
+version: '3.1'
+services:
+  db:
+    container_name: todo_db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: usernametodo
+      POSTGRES_PASSWORD: passwordtodo
+      POSTGRES_DB: todo
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5432:5432
+
+  pgadmin:
+    container_name: todo_pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    environment: 
+      PGADMIN_DEFAULT_EMAIL: root@root.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - 5050:80
