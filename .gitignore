@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Compiled class file
 *.class
 
@@ -13,7 +12,6 @@
 
 # Package Files #
 *.jar
-*.war
 *.nar
 *.ear
 *.zip
@@ -57,4 +55,3 @@ build/
 
 ### VS Code ###
 .vscode/
->>>>>>> 483b848 (Sovelluksen ensimmäinen versio)
