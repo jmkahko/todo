@@ -28,17 +28,26 @@ INSERT INTO kayttaja (tunnus, salasana, nimi) VALUES ('admin', 'admin123', 'Admi
 INSERT INTO kayttaja (tunnus, salasana, nimi) VALUES ('testaaja', 'testaaja', 'Testikäyttäjä');
 
 -- Luo TARKISTA_KAYTTAJA proseduurin. Tarkistaa löytyykö annetulla tunnuksella ja salasanalla käyttäjää
-CREATE OR REPLACE PROCEDURE tarkista_kayttaja(input_tunnus VARCHAR, input_salasana VARCHAR) AS $$
-DECLARE 
-    found_id INTEGER;
+CREATE OR REPLACE PROCEDURE tarkista_kayttaja(
+	IN input_tunnus VARCHAR, 
+	IN input_salasana VARCHAR, 
+	OUT output_id BIGINT, 
+	OUT output_virheilmoitus VARCHAR) AS $$
 BEGIN
-    EXECUTE 'SELECT id FROM kayttaja WHERE tunnus = ''' || input_tunnus || ''' AND salasana = ''' || input_salasana || '''' INTO found_id;
+    EXECUTE 'SELECT k.id FROM kayttaja k WHERE k.tunnus = ''' || input_tunnus || ''' AND k.salasana = ''' || input_salasana || '''' INTO output_id;
 
-    IF found_id IS NOT NULL THEN
-        RAISE NOTICE 'Käyttäjä löytyi, ID: %', found_id;
+    IF output_id IS NOT NULL THEN
+		output_virheilmoitus := NULL;
+        RAISE NOTICE 'Käyttäjä löytyi, ID: %', output_id;
     ELSE
+        output_virheilmoitus := 'Käyttäjää ei löytynyt parametreilla: ' || input_tunnus || ' ' || input_salasana;
         RAISE NOTICE 'Käyttäjää ei löytynyt parametreilla: % %', input_tunnus, input_salasana;
     END IF;
+
+EXCEPTION
+	WHEN OTHERS THEN
+		output_id := NULL;
+		output_virheilmoitus := 'Virhe käyttäjän tarkistuksessa: ' || SQLERRM;
 END;
 $$ LANGUAGE plpgsql;
 
