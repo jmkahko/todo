@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import fi.gradu.todo.dto.SearchResultDto;
 import fi.gradu.todo.service.CustomerServices;
@@ -38,9 +39,14 @@ public class DefaultController {
      */
 	@GetMapping("/")
 	public String index(Model model, HttpSession session) {  
-		List<SearchResultDto> resultList = todoServices.findTodoList();
-		model.addAttribute("resultList", resultList);
-		model.addAttribute("isLoggedIn", session.getAttribute("isLoggedIn"));
+		try {
+			List<SearchResultDto> resultList = todoServices.findTodoList();
+			model.addAttribute("resultList", resultList);
+			model.addAttribute("isLoggedIn", session.getAttribute("isLoggedIn"));
+		} catch (SQLException e) {
+			model.addAttribute("error", "Tietokantavirhe: " + e);
+			System.out.println("Virhe : " + e);
+		}
 		return "index";
 	}
 	
@@ -50,26 +56,25 @@ public class DefaultController {
      * @param username Käyttäjätunnus
      * @param password Salasana
      * @param session HTTP-istunto
-     * @param model Model-objekti näkymän tietojen välittämiseen
+     * @param redirectAttributes RedirectAttributes-objekti virhe viestien näyttämiseen redirect komennon jälkeen
      * @return
      */
     @PostMapping("/login")
-    public String login(@RequestParam String username,  @RequestParam String password,  HttpSession session, Model model) {
-    	Long loginUserId;
-		try {
-			loginUserId = customerServices.logIn(username, password);
-	        if (loginUserId != null) {
-	            session.setAttribute("isLoggedIn", true);
-	            session.setAttribute("loginUserId", loginUserId);
-	            return "redirect:/";
-	        }
-	        model.addAttribute("error", "Väärä käyttäjätunnus tai salasana");
-		} catch (SQLException e) {
-			model.addAttribute("error", "Tietokantavirhe: " + e);
-			System.out.println("Virhe : " + e);
-		}
-
-        return "index";
+    public String login(@RequestParam String username,  @RequestParam String password,  HttpSession session, RedirectAttributes redirectAttributes) {
+        try {
+            Long loginUserId = customerServices.logIn(username, password);
+            if (loginUserId != null) {
+                session.setAttribute("isLoggedIn", true);
+                session.setAttribute("loginUserId", loginUserId);
+                return "redirect:/";
+            }
+            redirectAttributes.addFlashAttribute("error", "Väärä käyttäjätunnus tai salasana");
+            return "redirect:/";
+        } catch (SQLException e) {
+            redirectAttributes.addFlashAttribute("error", "Tietokantavirhe: " + e);
+            System.out.println("Virhe : " + e);
+            return "redirect:/";
+        }
     }
 
     /**
@@ -95,16 +100,16 @@ public class DefaultController {
      */
 	@PostMapping("/todo/search")
 	public String todoSearch(@RequestParam String searchTask, Model model) {  
-		List<SearchResultDto> resultList;
 		try {
+			List<SearchResultDto> resultList;
 			resultList = todoServices.findTodoListByTask(searchTask);
 			model.addAttribute("resultList", resultList);
+			return "index";
 		} catch (SQLException e) {
 			model.addAttribute("error", "Tietokantavirhe: " + e);
 			System.out.println("Virhe : " + e);
+			return "index";
 		}
-
-		return "index";
 	}
 	
     /**
@@ -116,8 +121,14 @@ public class DefaultController {
      */
 	@PostMapping("/todo/updateRead")
 	public String updateRead(@RequestParam Long id, Model model) {
-		todoServices.updateTodoRead(id);
-		return "redirect:/";
+		try {
+			todoServices.updateTodoRead(id);
+			return "redirect:/";
+		} catch (SQLException e) {
+			model.addAttribute("error", "Tietokantavirhe: " + e);
+			System.out.println("Virhe : " + e);
+			return "index";
+		}
 	}
 	
     /**
@@ -130,8 +141,14 @@ public class DefaultController {
      */
 	@PostMapping("/todo/updateTodo")
 	public String updateTodo(@RequestParam Long id, @RequestParam String todoTask, Model model) {
-		todoServices.updateTodo(id, todoTask);
-		return "redirect:/";
+		try {
+			todoServices.updateTodo(id, todoTask);
+			return "redirect:/";
+		} catch (SQLException e) {
+			model.addAttribute("error", "Tietokantavirhe: " + e);
+			System.out.println("Virhe : " + e);
+			return "index";
+		}
 	}
 	
     /**
@@ -145,13 +162,19 @@ public class DefaultController {
      */
 	@PostMapping("/todo/createNew")
 	public String saveNewTodoSave(@RequestParam String todoTitle, @RequestParam String todoTask, Model model, HttpSession session) {
-		Object loginUserId = session.getAttribute("loginUserId");
-		Long loginId = null;
-		if (loginUserId != null && loginUserId instanceof Long) {
-			loginId = (Long) loginUserId;
+		try {
+			Object loginUserId = session.getAttribute("loginUserId");
+			Long loginId = null;
+			if (loginUserId != null && loginUserId instanceof Long) {
+				loginId = (Long) loginUserId;
+			}
+		    todoServices.createNewTodo(todoTitle, todoTask, loginId);
+		    return "redirect:/";
+		} catch (SQLException e) {
+			model.addAttribute("error", "Tietokantavirhe: " + e);
+			System.out.println("Virhe : " + e);
+			return "index";
 		}
-	    todoServices.createNewTodo(todoTitle, todoTask, loginId);
-	    return "redirect:/";
 	}
 	
 }
