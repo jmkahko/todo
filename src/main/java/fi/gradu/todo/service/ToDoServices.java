@@ -14,8 +14,9 @@ public interface ToDoServices {
 	/**
 	 * Hakee kaikki Todo tehtävät
 	 * @return
+	 * @throws SQLException
 	 */
-	public List<SearchResultDto> findTodoList();
+	public List<SearchResultDto> findTodoList() throws SQLException;
 	
 	/**
 	 * Hakee kaikki Todo tehtävät tehtävän nimellä
@@ -36,23 +37,26 @@ public interface ToDoServices {
 	/**
 	 * Päivittää tehtävän luettu tietoa
 	 * @param id Tehtävän yksilöllinen ID
+	 * @throws SQLException
 	 */
-	public void updateTodoRead(Long id);
+	public void updateTodoRead(Long id) throws SQLException;
 	
 	/**
 	 * Päivittää tehtävän sisältöä
 	 * @param id Tehtävän yksilöllinen ID
 	 * @param task Tehtävän sisältö
+	 * @throws SQLException
 	 */
-	public void updateTodo(Long id, String task);
+	public void updateTodo(Long id, String task) throws SQLException;
 	
 	/**
 	 * Luoda uuden tehtävän
 	 * @param taskTitle Tehtävän otsikko
 	 * @param task Tehtävän sisältö
 	 * @param userId
+	 * @throws SQLException
 	 */
-	public void createNewTodo(String taskTitle, String task, Long userId);
+	public void createNewTodo(String taskTitle, String task, Long userId) throws SQLException;
 	
 
 }

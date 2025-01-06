@@ -19,7 +19,7 @@ public class ToDoServiceImpl implements ToDoServices {
 	private ToDoDao todoDao;
 
 	@Override
-	public List<SearchResultDto> findTodoList() {
+	public List<SearchResultDto> findTodoList() throws SQLException {
 		return todoDao.findTodoList();
 	}
 	
@@ -29,17 +29,17 @@ public class ToDoServiceImpl implements ToDoServices {
 	}
 
 	@Override
-	public void updateTodoRead(Long id) {
+	public void updateTodoRead(Long id) throws SQLException {
 		todoDao.updateTodoRead(id);	
 	}
 
 	@Override
-	public void updateTodo(Long id, String task) {
+	public void updateTodo(Long id, String task) throws SQLException {
 		todoDao.updateTodo(id, task);
 	}
 
 	@Override
-	public void createNewTodo(String taskTitle, String task, Long userId) {
+	public void createNewTodo(String taskTitle, String task, Long userId) throws SQLException {
 		todoDao.createNewTodo(taskTitle, task, userId);
 	}
 	
