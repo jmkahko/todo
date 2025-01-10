@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import fi.gradu.todo.dao.CustomerDao;
-import fi.gradu.todo.dao.UserNotFoundException;
+import fi.gradu.todo.dao.UserException;
+import fi.gradu.todo.dto.CustomerResultDto;
 
 /**
  * Käyttäjäpalveluiden toteutusluokka, joka vastaa käyttäjiin liittyvästä logiikasta
@@ -23,8 +24,13 @@ public class CustomerServiceImpl implements CustomerServices {
 	}
 	
 	@Override
-	public Long checkUser(String username, String password) throws SQLException, UserNotFoundException {
+	public Long checkUser(String username, String password) throws SQLException, UserException {
 		return customerDao.checkUser(username, password);
+	}
+	
+	@Override
+	public CustomerResultDto createNewUser(String username, String fullname, String password) throws SQLException, UserException {
+		return customerDao.createNewUser(username, fullname, password);
 	}
 
 }

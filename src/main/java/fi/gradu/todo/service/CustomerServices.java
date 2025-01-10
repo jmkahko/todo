@@ -2,7 +2,8 @@ package fi.gradu.todo.service;
 
 import java.sql.SQLException;
 
-import fi.gradu.todo.dao.UserNotFoundException;
+import fi.gradu.todo.dao.UserException;
+import fi.gradu.todo.dto.CustomerResultDto;
 
 /**
  * Rajapinta käyttäjäpalveluiden määrittelyyn
@@ -27,5 +28,16 @@ public interface CustomerServices {
 	 * @return
 	 * @throws SQLException, UserNotFoundException
 	 */
-	public Long checkUser(String username, String password) throws SQLException, UserNotFoundException;
+	public Long checkUser(String username, String password) throws SQLException, UserException;
+	
+	/**
+	 * Luo uuden käyttäjän PLSQL proseduurilla ja palauttaa uuden käyttäjän ID:n tai jos käyttäjä löytyy samalla tunnuksella niin palautetaan virhe
+	 * @param username
+	 * @param fullname
+	 * @param password
+	 * @return
+	 * @throws SQLException
+	 * @throws UserFoundException
+	 */
+	public CustomerResultDto createNewUser(String username, String fullname, String password) throws SQLException, UserException;
 }
