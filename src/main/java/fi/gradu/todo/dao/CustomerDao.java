@@ -9,6 +9,8 @@ import java.sql.Statement;
 
 import org.springframework.stereotype.Service;
 
+import fi.gradu.todo.dto.CustomerResultDto;
+
 /**
  * Tarjoaa käyttäjien tietokantaoperaatiosta vastaavan DAO-luokan
  */
@@ -47,7 +49,7 @@ public class CustomerDao {
 	 * @return
 	 * @throws SQLException, UserNotFoundException
 	 */
-	public Long checkUser(String username, String password) throws SQLException, UserNotFoundException {
+	public Long checkUser(String username, String password) throws SQLException, UserException {
 		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
 		CallableStatement c = con.prepareCall("CALL tarkista_kayttaja(?,?,?,?)");
 		c.setString(1, username);
@@ -60,8 +62,41 @@ public class CustomerDao {
 		String errorMessage = c.getString(4);
 		if (errorMessage != null) {
 			System.out.println("Virhe : " + errorMessage);
-			throw new UserNotFoundException(errorMessage);
+			throw new UserException(errorMessage);
 		}
+		
+		return result;
+	}
+	
+	/**
+	 * Luo uuden käyttäjän PLSQL proseduurilla ja palauttaa uuden käyttäjän ID:n tai jos käyttäjä löytyy samalla tunnuksella niin palautetaan virhe
+	 * @param username
+	 * @param fullname
+	 * @param password
+	 * @return
+	 * @throws SQLException
+	 * @throws UserFoundException
+	 */
+	public CustomerResultDto createNewUser(String username, String fullname, String password) throws SQLException, UserException {
+		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+		CallableStatement c = con.prepareCall("CALL luo_kayttaja(?,?,?,?,?)");
+		c.setString(1, username);
+		c.setString(2, password);
+		c.setString(3, fullname);
+		c.registerOutParameter(4, java.sql.Types.BIGINT);
+		c.registerOutParameter(5, java.sql.Types.VARCHAR);
+		c.execute();
+		
+		String errorMessage = c.getString(5);
+		if (errorMessage != null) {
+			System.out.println("Virhe : " + errorMessage);
+			throw new UserException(errorMessage);
+		}
+		
+		CustomerResultDto result = new CustomerResultDto();
+		result.setId(c.getLong(4));
+		result.setUsername(username);
+		result.setFullname(fullname);
 		
 		return result;
 	}
