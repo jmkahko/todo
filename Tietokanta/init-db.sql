@@ -66,3 +66,33 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Luo LUO_KAYTTAJA proseduurin. Tarkistaa löytyykö jo käyttäjä samalla nimellä
+CREATE OR REPLACE PROCEDURE luo_kayttaja(
+	IN input_tunnus VARCHAR, 
+	IN input_kokonimi VARCHAR,
+	IN input_salasana VARCHAR, 
+	OUT output_id BIGINT, 
+	OUT output_virheilmoitus VARCHAR) AS $$
+DECLARE
+	loytyi_id BIGINT;
+BEGIN
+    EXECUTE 'SELECT k.id FROM kayttaja k WHERE k.tunnus = ''' || input_tunnus || '''' INTO loytyi_id;
+
+    IF loytyi_id IS NOT NULL THEN
+		output_virheilmoitus := 'Käyttäjä löytyi annetulla tunnuksella: ' || input_tunnus;
+        RAISE NOTICE 'Käyttäjä löytyi: %', input_tunnus;
+    ELSE
+        EXECUTE 'INSERT INTO kayttaja (tunnus, salasana, nimi) VALUES (''' || 
+            input_tunnus || ''', ''' || 
+            input_salasana || ''', ''' || 
+            input_kokonimi || ''') RETURNING id' INTO output_id;
+        RAISE NOTICE 'Uusi käyttäjä lisätty: % %', input_tunnus, input_kokonimi;
+    END IF;
+
+EXCEPTION
+	WHEN OTHERS THEN
+		output_id := NULL;
+		output_virheilmoitus := 'Virhe käyttäjän luonnissa: ' || SQLERRM;
+END;
+$$ LANGUAGE plpgsql;
