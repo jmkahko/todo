@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import fi.gradu.todo.dao.UserException;
+import fi.gradu.todo.dto.CustomerResultDto;
 import fi.gradu.todo.dto.SearchResultDto;
 import fi.gradu.todo.service.CustomerServices;
 import fi.gradu.todo.service.ToDoServices;
@@ -59,7 +61,7 @@ public class DefaultController {
      * @param redirectAttributes RedirectAttributes-objekti virhe viestien näyttämiseen redirect komennon jälkeen
      * @return
      */
-    @PostMapping("/login")
+    @PostMapping("/user/login")
     public String login(@RequestParam String username,  @RequestParam String password,  HttpSession session, RedirectAttributes redirectAttributes) {
         try {
             Long loginUserId = customerServices.logIn(username, password);
@@ -84,7 +86,7 @@ public class DefaultController {
      * @param model Model-objekti näkymän tietojen välittämiseen
      * @return
      */
-    @PostMapping("/logout")
+    @PostMapping("/user/logout")
     public String logout(HttpSession session, Model model) {
         session.removeAttribute("isLoggedIn");
         model.addAttribute("isLoggedIn", null);
@@ -175,6 +177,35 @@ public class DefaultController {
 			System.out.println("Virhe : " + e);
 			return "index";
 		}
+	}
+	
+	/**
+	 * Luo uuden käyttäjän
+	 * @param username Käyttäjätunnus
+	 * @param fullname Käyttäjän kokonimi
+	 * @param password Käyttäjän salasana
+	 * @param model Model-objekti näkymän tietojen välittämiseen
+	 * @param session HTTP-istunto
+	 * @param redirectAttributes RedirectAttributes-objekti info viestien näyttämiseen redirect komennon jälkeen
+	 * @return
+	 */
+	@PostMapping("/user/createNewUser")
+	public String createNewUser(@RequestParam String username, @RequestParam String fullname, @RequestParam String password, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+		try {
+			CustomerResultDto newUser = customerServices.createNewUser(username, fullname, password);
+			if (newUser.getId() > 0) {
+	            redirectAttributes.addFlashAttribute("info", "Lisätty uusi käyttäjä : " + newUser.getFullname());
+	            return "redirect:/";
+			}
+		} catch (SQLException e) {
+			model.addAttribute("error", "Tietokantavirhe: " + e);
+			System.out.println("Virhe : " + e);
+		} catch (UserException e) {
+			model.addAttribute("error", "Käyttäjän lisäys epäonnistui: " + e);
+			System.out.println("Virhe : " + e);
+		}
+
+		return "index";
 	}
 	
 }

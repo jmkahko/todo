@@ -16,17 +16,22 @@
     <div th:if="${error}" class="alert alert-danger">
       <p th:text="${error}"></p>
     </div>
+    <!-- Info ilmoitukset -->
+    <div th:if="${info}" class="alert alert-success">
+      <p th:text="${info}"></p>
+    </div>
     <div>
       <!-- Kirjaudu-nappi näkyy kun EI kirjautunut -->
       <div th:if="${isLoggedIn == null || isLoggedIn == false}">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
           data-bs-target="#logInModal">Kirjaudu</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createNewUserModal">Lisää käyttäjä</button>
       </div>
 
       <!-- Uusi tehtävä ja Kirjaudu ulos -napit näkyvät kun ON kirjautunut -->
       <div th:if="${isLoggedIn == true}">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTodoModal">Uusi tehtävä</button>
-        <form th:action="@{/logout}" method="post" style="display: inline-block;">
+        <form th:action="@{/user/logout}" method="post" style="display: inline-block;">
           <button type="submit" class="btn btn-danger">Kirjaudu ulos</button>
         </form>
       </div>
@@ -156,7 +161,7 @@
   <div class="modal" id="logInModal">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
-        <form th:action="@{/login}" method="post">
+        <form th:action="@{/user/login}" method="post">
           
           <!-- Modal Header -->
           <div class="modal-header">
@@ -179,6 +184,44 @@
           <!-- Modal footer -->
           <div class="modal-footer">
             <button type="submit" class="btn btn-primary">Kirjaudu</button>
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Peruuta</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Lisää uusi käyttäjä -->
+    <div class="modal" id="createNewUserModal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <form th:action="@{/user/createNewUser}" method="post">
+          
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title">Lisää uusi käyttäjä</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <!-- Modal body -->
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="newUserUsername">Käyttäjätunnus</label>
+              <input type="text" class="form-control" id="newUserUsername" name="username" placeholder="Käyttäjätunnus">
+            </div>
+            <div class="form-group">
+              <label for="newUserFullname">Kokonimi</label>
+              <input type="text" class="form-control" id="newUserFullname" name="fullname" placeholder="Kokonimi">
+            </div>
+            <div class="form-group">
+              <label for="newUserPassword">Salasana</label>
+              <input type="password" class="form-control" id="newUserPassword" name="password" placeholder="Sanasana">
+            </div>
+          </div>
+
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Lisää</button>
             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Peruuta</button>
           </div>
         </form>
