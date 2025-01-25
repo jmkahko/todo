@@ -1,7 +1,6 @@
 package fi.gradu.todo.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -10,17 +9,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import fi.gradu.todo.DatabaseConfig;
 import fi.gradu.todo.dto.SearchResultDto;
 
 /**
  * Tarjoaa tehtävien tietokantaoperaatiosta vastaavan DAO-luokan
  */
 @Service
-public class ToDoDao {
-	
-	private static final String URL = "jdbc:postgresql://localhost:5432/todo";
-	private static final String USERNAME = "usernametodo";
-	private static final String PASSWORD = "passwordtodo";
+public class ToDoDao extends DatabaseConfig {
 	
 	/**
 	 * Hakee kaikki Todo tehtävät
@@ -28,7 +24,7 @@ public class ToDoDao {
 	 * @throws SQLException
 	 */
 	public List<SearchResultDto> findTodoList() throws SQLException {
-		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+		Connection con = openConnection();
 		Statement stmt = con.createStatement();
 		String query = "SELECT id, tehtava_otsikko, tehtava, luettu FROM todo ORDER BY luettu DESC, id DESC";
 		ResultSet resultSet = stmt.executeQuery(query);
@@ -45,7 +41,7 @@ public class ToDoDao {
 		if (task == null || task.isEmpty()) {
 			return this.findTodoList();
 		}
-		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+		Connection con = openConnection();
 		Statement stmt = con.createStatement();
 		String query = "SELECT id, tehtava_otsikko, tehtava, luettu FROM todo WHERE tehtava = '" + task + "'";
 		ResultSet resultSet = stmt.executeQuery(query);
@@ -59,7 +55,7 @@ public class ToDoDao {
 	 * @throws SQLException
 	 */
 	public List<SearchResultDto> findTodoTaskTitleById(String id) throws SQLException {
-		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+		Connection con = openConnection();
 		Statement stmt = con.createStatement();
 		String query = "SELECT id, tehtava_otsikko, tehtava, luettu FROM todo WHERE id = '" + id + "'";
 		ResultSet resultSet = stmt.executeQuery(query);
@@ -91,7 +87,7 @@ public class ToDoDao {
 	 * @throws SQLException
 	 */
 	public void updateTodoRead(Long id) throws SQLException {
-		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+		Connection con = openConnection();
 		Statement stmt = con.createStatement();
 		String updateQuery = "UPDATE todo SET luettu = NOT luettu WHERE id =" + id;
 		stmt.executeUpdate(updateQuery);
@@ -104,7 +100,7 @@ public class ToDoDao {
 	 * @throws SQLException
 	 */
 	public void updateTodo(Long id, String task) throws SQLException {
-		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+		Connection con = openConnection();
 		Statement stmt = con.createStatement();
 		String updateQuery = "UPDATE todo SET tehtava = '" + task + "' WHERE id =" + id;
 		stmt.executeUpdate(updateQuery);
@@ -118,7 +114,7 @@ public class ToDoDao {
 	 * @throws SQLException
 	 */
 	public void createNewTodo(String taskTitle, String task, Long userId) throws SQLException {
-		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+		Connection con = openConnection();
 		Statement stmt = con.createStatement();
 		String insertQuery = "INSERT INTO todo (tehtava_otsikko, tehtava, luettu, kayttaja_id) VALUES ('" + taskTitle + "', '" + task + "', false, " + userId + ")";
 		stmt.executeUpdate(insertQuery);

@@ -2,24 +2,20 @@ package fi.gradu.todo.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.springframework.stereotype.Service;
 
+import fi.gradu.todo.DatabaseConfig;
 import fi.gradu.todo.dto.CustomerResultDto;
 
 /**
  * Tarjoaa käyttäjien tietokantaoperaatiosta vastaavan DAO-luokan
  */
 @Service
-public class CustomerDao {
-	
-	private static final String URL = "jdbc:postgresql://localhost:5432/todo";
-	private static final String USERNAME = "usernametodo";
-	private static final String PASSWORD = "passwordtodo";
+public class CustomerDao extends DatabaseConfig {
 	
     /**
      * Tarkistaa käyttäjän kirjautumistiedot ja palauttaa käyttäjän ID:n
@@ -31,7 +27,7 @@ public class CustomerDao {
      */
 	public Long logIn(String username, String password) throws SQLException {
 		Long result = null;
-		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+		Connection con = openConnection();
 		Statement stmt = con.createStatement();
 		String query = "SELECT id FROM kayttaja WHERE tunnus = '" + username + "' AND salasana ='" + password + "'";
 		ResultSet resultSet = stmt.executeQuery(query);
@@ -50,7 +46,7 @@ public class CustomerDao {
 	 * @throws SQLException, UserNotFoundException
 	 */
 	public Long checkUser(String username, String password) throws SQLException, UserException {
-		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+		Connection con = openConnection();
 		CallableStatement c = con.prepareCall("CALL tarkista_kayttaja(?,?,?,?)");
 		c.setString(1, username);
 		c.setString(2, password);
@@ -78,7 +74,7 @@ public class CustomerDao {
 	 * @throws UserFoundException
 	 */
 	public CustomerResultDto createNewUser(String username, String fullname, String password) throws SQLException, UserException {
-		Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+		Connection con = openConnection();
 		CallableStatement c = con.prepareCall("CALL luo_kayttaja(?,?,?,?,?)");
 		c.setString(1, username);
 		c.setString(2, password);
