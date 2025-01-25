@@ -32,11 +32,9 @@ public class ApiController {
 		List<SearchResultDto> result = null;
 		try {
 			result = todoServices.findTodoTaskTitleById(id);
-			
 		} catch (SQLException e) {
 			System.out.println("Virhe : " + e);
 		}
-
 		return result;
 	}
 }

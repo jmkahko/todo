@@ -103,8 +103,7 @@ public class DefaultController {
 	@PostMapping("/todo/search")
 	public String todoSearch(@RequestParam String searchTask, Model model) {  
 		try {
-			List<SearchResultDto> resultList;
-			resultList = todoServices.findTodoListByTask(searchTask);
+			List<SearchResultDto> resultList = todoServices.findTodoListByTask(searchTask);
 			model.addAttribute("resultList", resultList);
 			return "index";
 		} catch (SQLException e) {
