@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>fi.gradu</groupId>
 	<artifactId>todo</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<packaging>war</packaging>
 	<name>todo</name>
 	<description>Gradu Todo web-sovellus</description>
