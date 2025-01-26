@@ -1,6 +1,7 @@
 package fi.gradu.todo.dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -42,9 +43,10 @@ public class ToDoDao extends DatabaseConfig {
 			return this.findTodoList();
 		}
 		Connection con = openConnection();
-		Statement stmt = con.createStatement();
-		String query = "SELECT id, tehtava_otsikko, tehtava, luettu FROM todo WHERE tehtava = '" + task + "'";
-		ResultSet resultSet = stmt.executeQuery(query);
+		String query = "SELECT id, tehtava_otsikko, tehtava, luettu FROM todo WHERE tehtava = ?";
+		PreparedStatement pstmt = con.prepareStatement(query);
+		pstmt.setString(1, task);
+		ResultSet resultSet = pstmt.executeQuery();
 		return mapResultSetTodo(resultSet);
 	}
 	
@@ -56,9 +58,10 @@ public class ToDoDao extends DatabaseConfig {
 	 */
 	public List<SearchResultDto> findTodoTaskTitleById(String id) throws SQLException {
 		Connection con = openConnection();
-		Statement stmt = con.createStatement();
-		String query = "SELECT id, tehtava_otsikko, tehtava, luettu FROM todo WHERE id = '" + id + "'";
-		ResultSet resultSet = stmt.executeQuery(query);
+		String query = "SELECT id, tehtava_otsikko, tehtava, luettu FROM todo WHERE id = ?";
+		PreparedStatement pstmt = con.prepareStatement(query);
+		pstmt.setString(1, id);
+		ResultSet resultSet = pstmt.executeQuery();
 		return mapResultSetTodo(resultSet);
 	}
 	
@@ -88,9 +91,10 @@ public class ToDoDao extends DatabaseConfig {
 	 */
 	public void updateTodoRead(Long id) throws SQLException {
 		Connection con = openConnection();
-		Statement stmt = con.createStatement();
-		String updateQuery = "UPDATE todo SET luettu = NOT luettu WHERE id =" + id;
-		stmt.executeUpdate(updateQuery);
+		String updateQuery = "UPDATE todo SET luettu = NOT luettu WHERE id = ?";
+		PreparedStatement pstmt = con.prepareStatement(updateQuery);
+		pstmt.setLong(1, id);
+		pstmt.executeUpdate();
 	}
 
 	/**
@@ -101,9 +105,11 @@ public class ToDoDao extends DatabaseConfig {
 	 */
 	public void updateTodo(Long id, String task) throws SQLException {
 		Connection con = openConnection();
-		Statement stmt = con.createStatement();
-		String updateQuery = "UPDATE todo SET tehtava = '" + task + "' WHERE id =" + id;
-		stmt.executeUpdate(updateQuery);
+		String updateQuery = "UPDATE todo SET tehtava = ? WHERE id = ?";
+		PreparedStatement pstmt = con.prepareStatement(updateQuery);
+		pstmt.setString(1, task);
+		pstmt.setLong(2, id);
+		pstmt.executeUpdate();
 	}
 
 	/**
@@ -115,8 +121,12 @@ public class ToDoDao extends DatabaseConfig {
 	 */
 	public void createNewTodo(String taskTitle, String task, Long userId) throws SQLException {
 		Connection con = openConnection();
-		Statement stmt = con.createStatement();
-		String insertQuery = "INSERT INTO todo (tehtava_otsikko, tehtava, luettu, kayttaja_id) VALUES ('" + taskTitle + "', '" + task + "', false, " + userId + ")";
-		stmt.executeUpdate(insertQuery);
+		String insertQuery = "INSERT INTO todo (tehtava_otsikko, tehtava, luettu, kayttaja_id) VALUES (?, ?, ?, ?)";
+		PreparedStatement pstmt = con.prepareStatement(insertQuery);
+		pstmt.setString(1, taskTitle);
+		pstmt.setString(2, task);
+		pstmt.setBoolean(3, false);
+		pstmt.setLong(4, userId);
+		pstmt.executeUpdate();
 	}	
 }

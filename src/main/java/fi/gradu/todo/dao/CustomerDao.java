@@ -2,9 +2,9 @@ package fi.gradu.todo.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.springframework.stereotype.Service;
 
@@ -28,9 +28,11 @@ public class CustomerDao extends DatabaseConfig {
 	public Long logIn(String username, String password) throws SQLException {
 		Long result = null;
 		Connection con = openConnection();
-		Statement stmt = con.createStatement();
-		String query = "SELECT id FROM kayttaja WHERE tunnus = '" + username + "' AND salasana ='" + password + "'";
-		ResultSet resultSet = stmt.executeQuery(query);
+		String query = "SELECT id FROM kayttaja WHERE tunnus = ? AND salasana = ?";
+		PreparedStatement pstmt = con.prepareStatement(query);
+		pstmt.setString(1, username);
+		pstmt.setString(2, password);
+		ResultSet resultSet = pstmt.executeQuery();
 		while (resultSet.next()) {
 			result = resultSet.getLong("id");
 		}
