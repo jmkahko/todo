@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import fi.gradu.todo.ValidatorHelper;
 import fi.gradu.todo.dao.UserException;
 import fi.gradu.todo.dto.CustomerResultDto;
 import fi.gradu.todo.dto.SearchResultDto;
@@ -190,18 +191,46 @@ public class DefaultController {
 	 */
 	@PostMapping("/user/createNewUser")
 	public String createNewUser(@RequestParam String username, @RequestParam String fullname, @RequestParam String password, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-		try {
-			CustomerResultDto newUser = customerServices.createNewUser(username, fullname, password);
-			if (newUser.getId() > 0) {
-	            redirectAttributes.addFlashAttribute("info", "Lisätty uusi käyttäjä : " + newUser.getFullname());
-	            return "redirect:/";
+		boolean isValid = true;
+		String errorMessage = "";
+		if (!ValidatorHelper.validateUsernameOrPassword(username) || !ValidatorHelper.validateStringLength(username, 3, 10)) {
+			isValid = false;
+			errorMessage += "Uuden käyttäjän lisäys epäonnistui! Yritä uudelleen\n";
+			errorMessage += "- Käyttäjänimen pituus 3 - 10 merkkiä ja joka saa sisältää kirjaimia a-ö A-Ö ja numeroita 0-9";
+		}
+		
+		if (!ValidatorHelper.validateFullname(fullname) || !ValidatorHelper.validateStringLength(fullname, 3, 50)) {
+			isValid = false;
+			if (errorMessage.length() > 0) {
+				errorMessage += "\n";
 			}
-		} catch (SQLException e) {
-			model.addAttribute("error", "Tietokantavirhe: " + e);
-			System.out.println("Virhe : " + e);
-		} catch (UserException e) {
-			model.addAttribute("error", "Käyttäjän lisäys epäonnistui: " + e);
-			System.out.println("Virhe : " + e);
+			errorMessage += "- Kokonimen pituus 3 - 50 merkkiä ja joka saa sisältää kirjaimia a-ö A-Ö, numeroita 0-9 ja välilyöntejä";
+		}
+		
+		if (!ValidatorHelper.validateUsernameOrPassword(password) || !ValidatorHelper.validateStringLength(password, 8, 32)) {
+			isValid = false;
+			if (errorMessage.length() > 0) {
+				errorMessage += "\n";
+			}
+			errorMessage += "- Salasanan pituus 8 - 32 merkkiä ja joka saa sisältää kirjaimia a-ö A-Ö ja numeroita 0-9";;
+		}
+
+		if (isValid) {
+			try {
+				CustomerResultDto newUser = customerServices.createNewUser(username, fullname, password);
+				if (newUser.getId() > 0) {
+		            redirectAttributes.addFlashAttribute("info", "Lisätty uusi käyttäjä : " + newUser.getFullname());
+		            return "redirect:/";
+				}
+			} catch (SQLException e) {
+				model.addAttribute("error", "Tietokantavirhe: " + e);
+				System.out.println("Virhe : " + e);
+			} catch (UserException e) {
+				model.addAttribute("error", "Käyttäjän lisäys epäonnistui: " + e);
+				System.out.println("Virhe : " + e);
+			}
+		} else {
+			model.addAttribute("error", errorMessage);
 		}
 
 		return "index";
