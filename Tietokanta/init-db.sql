@@ -34,7 +34,7 @@ CREATE OR REPLACE PROCEDURE tarkista_kayttaja(
 	OUT output_id BIGINT, 
 	OUT output_virheilmoitus VARCHAR) AS $$
 BEGIN
-    EXECUTE 'SELECT k.id FROM kayttaja k WHERE k.tunnus = ''' || input_tunnus || ''' AND k.salasana = ''' || input_salasana || '''' INTO output_id;
+    SELECT k.id INTO output_id FROM kayttaja k WHERE k.tunnus = input_tunnus AND k.salasana = input_salasana;
 
     IF output_id IS NOT NULL THEN
 		output_virheilmoitus := NULL;
@@ -76,17 +76,18 @@ CREATE OR REPLACE PROCEDURE luo_kayttaja(
 	OUT output_virheilmoitus VARCHAR) AS $$
 DECLARE
 	loytyi_id BIGINT;
+	output_id BIGINT;
 BEGIN
-    EXECUTE 'SELECT k.id FROM kayttaja k WHERE k.tunnus = ''' || input_tunnus || '''' INTO loytyi_id;
+    SELECT k.id INTO loytyi_id FROM kayttaja k WHERE k.tunnus = input_tunnus;
 
     IF loytyi_id IS NOT NULL THEN
 		output_virheilmoitus := 'Käyttäjä löytyi annetulla tunnuksella: ' || input_tunnus;
         RAISE NOTICE 'Käyttäjä löytyi: %', input_tunnus;
     ELSE
-        EXECUTE 'INSERT INTO kayttaja (tunnus, salasana, nimi) VALUES (''' || 
-            input_tunnus || ''', ''' || 
-            input_salasana || ''', ''' || 
-            input_kokonimi || ''') RETURNING id' INTO output_id;
+        INSERT INTO kayttaja (tunnus, salasana, nimi) VALUES (
+        	input_tunnus, 
+        	input_salasana, 
+        	input_kokonimi) RETURNING id INTO output_id;
         RAISE NOTICE 'Uusi käyttäjä lisätty: % %', input_tunnus, input_kokonimi;
     END IF;
 
