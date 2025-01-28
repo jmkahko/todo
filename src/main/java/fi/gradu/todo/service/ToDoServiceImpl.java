@@ -44,7 +44,7 @@ public class ToDoServiceImpl implements ToDoServices {
 	}
 	
 	@Override
-	public List<SearchResultDto> findTodoTaskTitleById(String id) throws SQLException {
+	public List<SearchResultDto> findTodoTaskTitleById(Long id) throws SQLException {
 		return todoDao.findTodoTaskTitleById(id);
 	}
 }

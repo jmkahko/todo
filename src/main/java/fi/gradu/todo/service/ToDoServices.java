@@ -32,7 +32,7 @@ public interface ToDoServices {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<SearchResultDto> findTodoTaskTitleById(String id) throws SQLException;
+	public List<SearchResultDto> findTodoTaskTitleById(Long id) throws SQLException;
 	
 	/**
 	 * Päivittää tehtävän luettu tietoa

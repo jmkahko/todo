@@ -56,11 +56,11 @@ public class ToDoDao extends DatabaseConfig {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<SearchResultDto> findTodoTaskTitleById(String id) throws SQLException {
+	public List<SearchResultDto> findTodoTaskTitleById(Long id) throws SQLException {
 		Connection con = openConnection();
 		String query = "SELECT id, tehtava_otsikko, tehtava, luettu FROM todo WHERE id = ?";
 		PreparedStatement pstmt = con.prepareStatement(query);
-		pstmt.setString(1, id);
+		pstmt.setLong(1, id);
 		ResultSet resultSet = pstmt.executeQuery();
 		return mapResultSetTodo(resultSet);
 	}
