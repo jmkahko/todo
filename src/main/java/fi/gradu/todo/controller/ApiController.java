@@ -1,6 +1,7 @@
 package fi.gradu.todo.controller;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,14 @@ public class ApiController {
      */
 	@GetMapping("/todo/search/{id}")
 	public List<SearchResultDto> todoSearchById(@PathVariable String id) {  
-		List<SearchResultDto> result = null;
+		List<SearchResultDto> result = new ArrayList<SearchResultDto>();
 		try {
-			result = todoServices.findTodoTaskTitleById(id);
-		} catch (SQLException e) {
+			Long valueId = Long.valueOf(id);
+			result.addAll(todoServices.findTodoTaskTitleById(valueId));
+		} catch (SQLException  e) {
 			System.out.println("Virhe : " + e);
+		} catch (NumberFormatException  ne) {
+			// Virhettä ei kirjoiteta lokille
 		}
 		return result;
 	}
